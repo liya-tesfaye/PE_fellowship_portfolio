@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Adora.member import member as adora
 from Prasant.member import member as prasant
+from Liya.member import member as liya
 
 load_dotenv()
 app = Flask(__name__)
@@ -15,15 +16,7 @@ app = Flask(__name__)
 team = [
     adora,
     prasant,
-    {
-        "name": "Member Three",
-        "image": "img/logo.jpg",
-        "about": "Write a short bio about yourself here.",
-        "work_experiences": [],
-        "education": [],
-        "hobbies": [],
-        "visited_places": [],
-    },
+    liya,
 ]
 
 pages = [
