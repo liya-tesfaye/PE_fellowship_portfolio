@@ -1,46 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% from "macros.html" import experience_card, education_card %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta property="og:title" content="Personal Portfolio">
-    <meta property="og:description" content="My Personal Portfolio">
-    <meta property="og:url" content="{{ url }}">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
-    <title>{{ title }}</title>
-</head>
-
-<body>
-    <header class="nav-bar">
-        <div class="nav-content">
-            <a href="/">
-                <div class="nav-logo">
-                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo">
-                </div>
-            </a>
-
-            <nav>
-                {% for page in pages %}
-                    <a href="{{ page.url }}">{{ page.name }}</a>
-                {% endfor %}
-            </nav>
-        </div>
-    </header>
-
-    <div class="profile">
-        <div id="profile-picture" class="profile-picture">
-            <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Profile photo">
-        </div>
-        <h1>{{ title }}</h1>
+{% block content %}
+<div class="profile">
+    <div id="profile-picture" class="profile-picture">
+        <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Profile photo">
     </div>
-</body>
+    <h1>{{ title }}</h1>
+</div>
 
-</html>
+<section class="container">
+    <h2>Work Experience</h2>
+    {% for job in work_experiences %}
+        {{ experience_card(job) }}
+    {% else %}
+        <p>No work experience added yet.</p>
+    {% endfor %}
+</section>
+
+<section class="container">
+    <h2>Education</h2>
+    {% for school in education %}
+        {{ education_card(school) }}
+    {% else %}
+        <p>No education added yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}
