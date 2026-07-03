@@ -6,16 +6,12 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from Adora.member import member as adora
-from Prasant.member import member as prasant
 from Liya.member import member as liya
 
 load_dotenv()
 app = Flask(__name__)
 
 team = [
-    adora,
-    prasant,
     liya,
 ]
 
