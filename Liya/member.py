@@ -2,18 +2,31 @@ member = {
     "name": "Liya",
     "image": "img/Liya/profile.webp",
     "about": (
-        "I'm Liya Tesfaye, a student at Dakota State University pursuing a degree in "
-        "Computer Science and Cyber Operations. I'm passionate about cybersecurity "
-        "and empowering the next generation of women in tech!"
+        "I'm Liya Tesfaye, a sophomore at Dakota State University pursuing a B.S. in "
+        "Computer Science and Cyber Operations. I'm passionate about system, infrastructure, and cyber security. "
+        "I build low-level security tools and projects, compete in national cybersecurity competitions, "
+        "and mentor the next generation of women in tech through CybHER."
     ),
     "work_experiences": [
-        {
-            "title": "CybHer Leader",
-            "company": "Dakota State UNiversity",
-            "dates": "Present · Remote",
+          {
+            "title": "Production Engineering Fellow",
+            "company": "Major League Hacking x Meta",
+            "dates": "Jun 2026 – Sep 2026 · Remote",
             "description": (
-                "Teaching and mentoring young girls to join the cybersecurity field "
-                "through hands-on learning and community building."
+                "Selected from a competitive applicant pool for a 12-week Meta Production "
+                "Engineering Fellowship focused on Site Reliability Engineering, Linux systems "
+                "internals, automation, and large-scale distributed infrastructure alongside "
+                "Meta engineers."
+            ),
+        },
+          {
+            "title": "CybHER Program Lead",
+            "company": "Dakota State University",
+            "dates": "Aug 2025 – Present · Madison, SD",
+            "description": (
+                "Lead cybersecurity education program mentoring 100+ middle and high school "
+                "students in cryptography, digital forensics, and offensive security. Develop "
+                "CTF writeups and exploit demonstrations to build student technical skills."
             ),
         },
     ],
