@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timeline</title>
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #f4f4f4;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        color: #0056b3;
+    }
+
+    form {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    button {
+        background-color: #0056b3;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #003d80;
+    }
+
+    .post {
+        background: white;
+        border-left: 5px solid #0056b3;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .post h3 {
+        margin: 0;
+    }
+
+    .post p {
+        margin: 10px 0;
+    }
+
+    .post small {
+        color: gray;
+    }
+    .post {
+    	display: flex;
+	gap: 15px;
+	align-items: flex-start;
+    }
+
+    .post img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+    }
+</style>
+</head>
+<body>
+
+<h1>Timeline</h1>
+
+<form id="timeline-form">
+    <input type="text" id="name" placeholder="Name" required><br><br>
+
+    <input type="email" id="email" placeholder="Email" required><br><br>
+
+    <textarea id="content" placeholder="What's on your mind?" required></textarea><br><br>
+
+    <button type="submit">Post</button>
+</form>
+
+<hr>
+
+<h2>Timeline Posts</h2>
+<div id="posts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
+<script>
+function gravatarUrl(email) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const hash = md5(normalizedEmail);
+    return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=60`;
+}
+
+async function loadPosts() {
+    const response = await fetch("/api/timeline_post");
+    const data = await response.json();
+
+    const postsDiv = document.getElementById("posts");
+    postsDiv.innerHTML = "";
+
+    data.timeline_post.forEach(post => {
+        postsDiv.innerHTML += `
+        <div class="post">
+            <img src="${gravatarUrl(post.email)}" alt="Avatar">
+
+            <div>
+                <h3>${post.name}</h3>
+                <small>${post.email}</small>
+                <p>${post.content}</p>
+                <small>${post.created_at}</small>
+            </div>
+        </div>
+        `;
+    });
+}
+
+document.getElementById("timeline-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formData = new URLSearchParams();
+    formData.append("name", document.getElementById("name").value);
+    formData.append("email", document.getElementById("email").value);
+    formData.append("content", document.getElementById("content").value);
+
+    await fetch("/api/timeline_post", {
+        method: "POST",
+        body: formData
+    });
+
+    document.getElementById("timeline-form").reset();
+
+    loadPosts();
+});
+
+loadPosts();
+</script>
+
+</body>
+</html>
