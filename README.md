@@ -1,79 +1,88 @@
-# Production Engineering - Week 1 - Portfolio Site
+# Portfolio Service — Containerized, Reverse-Proxied, TLS-Terminated
 
-Welcome to the MLH Fellowship! During Week 1, you'll be using Flask to build a portfolio site. This site will be the foundation for activities we do in future weeks so spend time this week making it your own and reflect your personality!
+A personal portfolio site built with Flask, deployed as a multi-container production service on a self-managed Linux VPS — built during the MLH × Meta Production Engineering Fellowship.
 
-## Tasks
+This isn't just a portfolio site — it's the infrastructure around it: containerization, orchestration, reverse proxying, TLS automation, and deployment automation, all built and operated end-to-end.
 
-Once you've got your portfolio downloaded and running using the instructions below, you should attempt to complete the following tasks.
+## Architecture
 
-For each of these tasks, you should create an [Issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues) and work on them in a new [branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches). When the task has been completed, you should open a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) and get another fellow in your pod to give you feedback before merging it in.
+```
+                    Internet
+                       │
+                  ┌─────────┐
+                  │  Nginx  │  ← TLS termination (Let's Encrypt / certbot)
+                  │ (proxy) │  ← per-IP rate limiting on API routes
+                  └────┬────┘
+                       │ HTTP (internal)
+                  ┌────┴─────┐
+                  │  Flask   │  ← REST API (GET/POST timeline)
+                  │  (app)   │
+                  └────┬─────┘
+                       │
+                  ┌────┴─────┐
+                  │ MariaDB  │  ← persisted via named Docker volume
+                  │  (db)    │
+                  └──────────┘
+```
 
-*Note: Make sure to include a link to the Issue you're progressing on inside of your Pull Request so your reviewer knows what you're progressing on!*
+All three services run as independently managed Docker containers, orchestrated with Docker Compose.
 
-### GitHub Tasks
-- [x] Create Issues for each task below
-- [x] Progress on each task in a new branch
-- [x] Open a Pull Request when a task is finished to get feedback
+## Features
 
-### Portfolio Tasks
-- [x] Add a photo of yourself to the website
-- [x] Add an "About youself" section to the website.
-- [x] Add your previous work experiences
-- [x] Add your hobbies (including images)
-- [x] Add your current/previous education
-- [x] Add a map of all the cool locations/countries you visited
+- **Multi-container orchestration** via Docker Compose — Flask app, MariaDB, and Nginx reverse proxy each run as separate, independently manageable containers
+- **Nginx reverse proxy** with automated **Let's Encrypt TLS certificate generation** (via `jonasal/nginx-certbot`) for HTTPS termination
+- **Per-IP rate limiting** on the `POST /api/timeline_post` endpoint to prevent abuse
+- **Persistent storage** via named Docker volumes — database state and TLS certs survive container rebuilds and reboots
+- **Separate dev/prod Compose configurations** (`docker-compose.yml` for local development with hot-reload volume mounts, `docker-compose.prod.yml` for the VPS)
+- **Automated deployment** via a `redeploy-site.sh` script: pulls latest `main`, tears down containers, rebuilds images, and brings the stack back up
+- **CI/CD pipeline** for automated testing on changes
+- **Unit tests** covering core API functionality
 
-### Flask Tasks
-- [x] Get your Flask app running locally on your machine using the instructions below.
-- [x] Add a template for adding multiple work experiences/education/hobbies using [Jinja](https://jinja.palletsprojects.com/en/3.0.x/api/#basics)
-- [x] Create a new page to display hobbies.
-- [x] Add a menu bar that dynamically displays other pages in the app
+## Tech Stack
 
+- **App**: Flask (Python), REST API (GET/POST)
+- **Database**: MariaDB (MySQL-compatible, lower resource footprint)
+- **Reverse Proxy / TLS**: Nginx, Let's Encrypt (certbot)
+- **Orchestration**: Docker, Docker Compose
+- **Infra**: DigitalOcean Linux VPS, systemd
+- **Automation**: Bash, SSH, CI/CD
 
-## Getting Started
+## Local Development
 
-You need to do all your progress here.
-
-## Installation
-
-Make sure you have python3 and pip installed
-
-Create and activate virtual environment using virtualenv
 ```bash
-$ python -m venv python3-virtualenv
-$ source python3-virtualenv/bin/activate
+docker compose up -d --build
 ```
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install all dependencies!
+Visit `http://localhost:5000` to view the site and test the timeline API.
 
 ```bash
-pip install -r requirements.txt
+curl http://localhost:5000/api/timeline_post
+curl -X POST http://localhost:5000/api/timeline_post -d 'name=Liya&message=hello'
 ```
 
-## Usage
+## Production Deployment
 
-Create a .env file using the example.env template (make a copy using the variables inside of the template)
+On the VPS:
 
-Start flask development server
 ```bash
-$ export FLASK_ENV=development
-$ flask run
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-You should get a response like this in the terminal:
-```
-❯ flask run
- * Environment: development
- * Debug mode: on
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+Redeploys (after pushing changes to `main`) are handled by:
+
+```bash
+~/redeploy-site.sh
 ```
 
-You'll now be able to access the website at `localhost:5000` or `127.0.0.1:5000` in the browser! 
+which runs:
+1. `git fetch && git reset origin/main --hard`
+2. `docker compose -f docker-compose.prod.yml down`
+3. `docker compose -f docker-compose.prod.yml up -d --build`
 
-*Note: The portfolio site will only work on your local machine while you have it running inside of your terminal. We'll go through how to host it in the cloud in the next few weeks!* 
+## Rate Limiting
 
-## Contributing
+The `POST /api/timeline_post` endpoint is rate-limited at the Nginx layer (1 request/minute per IP) to prevent abuse, configured in `user_conf.d/myportfolio.conf`.
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+## Author
 
-Please make sure to update tests as appropriate.
+**Liya Tesfaye** — built during the Major League Hacking × Meta Production Engineering Fellowship
